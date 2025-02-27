@@ -24,10 +24,10 @@ jobs:
       run: cd animeZoneGit
 
     # Step 4: Install unzip jika belum ada, lalu unzip file
-    - name: Unzip AIRI.zip
+    - name: Unzip AIRI-1.zip
       run: |
         sudo apt-get update && sudo apt-get install -y unzip  # Install unzip
-        unzip animeZoneGit/AIRI.zip -d ./animeZoneGit  # Unzip AIRI.zip
+        unzip animeZoneGit/AIRI-1.zip -d ./animeZoneGit  # Unzip AIRI-1.zip
 
     # Step 5: Install npm dependencies
     - name: Install npm dependencies
