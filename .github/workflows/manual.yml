@@ -24,10 +24,10 @@ jobs:
       run: cd animeZoneGit
 
     # Step 4: Install unzip jika belum ada, lalu unzip file
-    - name: Unzip B-SML2.zip
+    - name: Unzip AIRI.zip
       run: |
         sudo apt-get update && sudo apt-get install -y unzip  # Install unzip
-        unzip animeZoneGit/B-SML2.zip -d ./animeZoneGit  # Unzip B-SML2.zip
+        unzip animeZoneGit/AIRI.zip -d ./animeZoneGit  # Unzip AIRI.zip
 
     # Step 5: Install npm dependencies
     - name: Install npm dependencies
