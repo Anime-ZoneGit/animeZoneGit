@@ -13,7 +13,7 @@ jobs:
     # Step 1: Clone the target repository
     - name: Clone animeZoneGit repository
       run: |
-        git clone https://github.com/animeZoneGit.git
+        git clone https://github.com/Anime-ZoneGit/animeZoneGit.git
 
     # Step 2: Navigate into the RepositoryName directory
     - name: Change directory to animeZoneGit
