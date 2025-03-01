@@ -33,11 +33,15 @@ jobs:
         unzip animeZoneGit/AIRI-1.zip -d animeZoneGit  # Unzip AIRI-1.zip
 
     # Step 5: Download session WhatsApp jika ada
-    - name: Download session
-      uses: actions/download-artifact@v4
-      with:
-        name: whatsapp-session
-        path: animeZoneGit/session  # Simpan di dalam direktori bot
+    - name: Check if session exists
+  run: echo "Checking session..." && ls -la || echo "No session found, skipping download."
+
+- name: Download session (if exists)
+  uses: actions/download-artifact@v4
+  continue-on-error: true
+  with:
+    name: whatsapp-session
+    path: animeZoneGit/session# Simpan di dalam direktori bot
 
     # Step 6: Install npm dependencies
     - name: Install npm dependencies
