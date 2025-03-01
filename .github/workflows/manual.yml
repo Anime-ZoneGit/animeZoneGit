@@ -34,7 +34,7 @@ jobs:
 
     # Step 5: Download session WhatsApp jika ada
     - name: Download session
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: whatsapp-session
         path: animeZoneGit/session  # Simpan di dalam direktori bot
@@ -57,7 +57,7 @@ jobs:
         cd animeZoneGit
         tar -czvf session.tar.gz session
     - name: Upload session
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: whatsapp-session
         path: animeZoneGit/session.tar.gz
