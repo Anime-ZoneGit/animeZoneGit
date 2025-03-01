@@ -3,65 +3,62 @@ name: Git Clone, Unzip, Install, and Run
 on:
   push:
     branches:
-      - main  # Jalankan setiap ada push di branch 'main'
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout repository utama
     - name: Checkout repository utama
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    # Step 2: Clone animeZoneGit repository dengan autentikasi
     - name: Clone animeZoneGit repository
       run: |
         git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Anime-ZoneGit/animeZoneGit.git
-        ls -la  # Cek apakah repositori sudah dikloning
+        ls -la
 
-    # Step 3: Pindah ke direktori animeZoneGit
     - name: Change directory to animeZoneGit
       run: |
         cd animeZoneGit
-        ls -la  # Cek isi folder
+        ls -la
 
-    # Step 4: Install unzip jika belum ada, lalu unzip file
     - name: Unzip AIRI-1.zip
       run: |
-        sudo apt-get update && sudo apt-get install -y unzip  # Install unzip
-        unzip animeZoneGit/AIRI-1.zip -d animeZoneGit  # Unzip AIRI-1.zip
+        sudo apt-get update && sudo apt-get install -y unzip
+        unzip animeZoneGit/AIRI-1.zip -d animeZoneGit
 
-    # Step 5: Download session WhatsApp jika ada
-    - name: Check if session exists
-  run: echo "Checking session..." && ls -la || echo "No session found, skipping download."
+    # ✅ Perbaikan: Download session, lanjutkan jika tidak ditemukan
+    - name: Download session (if exists)
+      uses: actions/download-artifact@v4
+      continue-on-error: true
+      with:
+        name: whatsapp-session
+        path: animeZoneGit/session
 
-- name: Download session (if exists)
-  uses: actions/download-artifact@v4
-  continue-on-error: true
-  with:
-    name: whatsapp-session
-    path: animeZoneGit/session# Simpan di dalam direktori bot
-
-    # Step 6: Install npm dependencies
     - name: Install npm dependencies
       run: |
         cd animeZoneGit
         npm install
 
-    # Step 7: Start the npm application
     - name: Start the application
       run: |
         cd animeZoneGit
         npm start
 
-    # Step 8: Simpan sesi setelah bot berjalan
-    - name: Save session
+    # ✅ Perbaikan: Pastikan hanya mengupload session jika ada
+    - name: Save session (if exists)
       run: |
         cd animeZoneGit
-        tar -czvf session.tar.gz session
-    - name: Upload session
+        if [ -d "session" ]; then
+          tar -czvf session.tar.gz session
+        else
+          echo "No session found, skipping save."
+        fi
+
+    - name: Upload session (if exists)
       uses: actions/upload-artifact@v4
+      if: success()
       with:
         name: whatsapp-session
         path: animeZoneGit/session.tar.gz
