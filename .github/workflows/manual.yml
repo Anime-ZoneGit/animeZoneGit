@@ -1,9 +1,12 @@
-name: Git Clone, Unzip, Install, and Run
+name: WhatsApp Bot Workflow
 
 on:
   push:
     branches:
       - main
+  schedule:
+    - cron: '0 */5 * * *'  # Restart otomatis setiap 5 jam
+  workflow_dispatch:  # Bisa dijalankan manual
 
 jobs:
   build:
@@ -16,19 +19,22 @@ jobs:
     - name: Clone animeZoneGit repository
       run: |
         git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Anime-ZoneGit/animeZoneGit.git
-        ls -la
+        ls -la animeZoneGit
 
     - name: Change directory to animeZoneGit
       run: |
         cd animeZoneGit
         ls -la
 
-    - name: Unzip AIRI-1.zip
+    - name: Install unzip
       run: |
         sudo apt-get update && sudo apt-get install -y unzip
-        unzip animeZoneGit/AIRI-1.zip -d animeZoneGit
 
-    # ✅ Perbaikan: Download session, lanjutkan jika tidak ditemukan
+    - name: Unzip AIRI-1.zip
+      run: |
+        cd animeZoneGit
+        unzip AIRI-1.zip -d .
+
     - name: Download session (if exists)
       uses: actions/download-artifact@v4
       continue-on-error: true
@@ -44,9 +50,8 @@ jobs:
     - name: Start the application
       run: |
         cd animeZoneGit
-        npm start
+        node index.js & sleep 17900  # Menjalankan bot selama 5 jam
 
-    # ✅ Perbaikan: Pastikan hanya mengupload session jika ada
     - name: Save session (if exists)
       run: |
         cd animeZoneGit
@@ -62,3 +67,11 @@ jobs:
       with:
         name: whatsapp-session
         path: animeZoneGit/session.tar.gz
+
+    # ✅ Restart workflow otomatis sebelum 6 jam
+    - name: Restart workflow
+      run: |
+        curl -X POST -H "Accept: application/vnd.github.v3+json" \
+        -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+        https://api.github.com/repos/${{ github.repository }}/actions/workflows/main.yml/dispatches \
+        -d '{"ref":"main"}'
