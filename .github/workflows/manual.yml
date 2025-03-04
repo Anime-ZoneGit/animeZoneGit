@@ -21,14 +21,10 @@ jobs:
         git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Anime-ZoneGit/animeZoneGit.git
         ls -la animeZoneGit
 
-    - name: Change directory to animeZoneGit
+    - name: Install dependencies
       run: |
-        cd animeZoneGit
-        ls -la
-
-    - name: Install unzip
-      run: |
-        sudo apt-get update && sudo apt-get install -y unzip
+        sudo apt-get update
+        sudo apt-get install -y unzip
 
     - name: Unzip AIRI-1.zip
       run: |
@@ -68,10 +64,11 @@ jobs:
         name: whatsapp-session
         path: animeZoneGit/session.tar.gz
 
-    # ✅ Restart workflow otomatis sebelum 6 jam
-- name: Restart workflow
-  run: |
-    curl -X POST -H "Accept: application/vnd.github.v3+json" \
-    -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
-    https://api.github.com/repos/${{ github.repository }}/actions/workflows/main.yml/dispatches \
-    -d '{"ref":"main"}'
+    # ✅ Restart workflow dengan Personal Access Token (PAT)
+    - name: Restart workflow
+      continue-on-error: true
+      run: |
+        curl -X POST -H "Accept: application/vnd.github.v3+json" \
+        -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+        https://api.github.com/repos/${{ github.repository }}/actions/workflows/main.yml/dispatches \
+        -d '{"ref":"main"}'
