@@ -1,74 +1,63 @@
-name: WhatsApp Bot Workflow
+name: WhatsApp Bot - Auto Restart
 
 on:
-  push:
-    branches:
-      - main
   schedule:
-    - cron: '0 */5 * * *'  # Restart otomatis setiap 5 jam
-  workflow_dispatch:  # Bisa dijalankan manual
+    - cron: "0 */5 * * *"  # Restart otomatis setiap 5 jam
+  workflow_dispatch:  # Bisa dijalankan secara manual
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository utama
-      uses: actions/checkout@v4
+      - name: Checkout repository utama
+        uses: actions/checkout@v4
 
-    - name: Clone animeZoneGit repository
-      run: |
-        git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Anime-ZoneGit/animeZoneGit.git
-        ls -la animeZoneGit
+      - name: Clone animeZoneGit repository
+        run: |
+          git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Anime-ZoneGit/animeZoneGit.git
+          ls -la
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y unzip
+      - name: Change directory to animeZoneGit
+        run: |
+          cd animeZoneGit
+          ls -la
 
-    - name: Unzip AIRI-1.zip
-      run: |
-        cd animeZoneGit
-        unzip AIRI-1.zip -d .
+      - name: Unzip AIRI-1.zip
+        run: |
+          sudo apt-get update && sudo apt-get install -y unzip
+          unzip animeZoneGit/AIRI-1.zip -d animeZoneGit
 
-    - name: Download session (if exists)
-      uses: actions/download-artifact@v4
-      continue-on-error: true
-      with:
-        name: whatsapp-session
-        path: animeZoneGit/session
+      - name: Download session (if exists)
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: whatsapp-session
+          path: animeZoneGit/session
 
-    - name: Install npm dependencies
-      run: |
-        cd animeZoneGit
-        npm install
+      - name: Install npm dependencies
+        run: |
+          cd animeZoneGit
+          npm install
 
-    - name: Start the application
-      run: |
-        cd animeZoneGit
-        node index.js & sleep 17900  # Menjalankan bot selama 5 jam
+      - name: Start the application
+        run: |
+          cd animeZoneGit
+          npm start &  # Menjalankan bot di background
+          sleep 17900  # Menjalankan bot selama 4 jam 58 menit (17900 detik)
 
-    - name: Save session (if exists)
-      run: |
-        cd animeZoneGit
-        if [ -d "session" ]; then
-          tar -czvf session.tar.gz session
-        else
-          echo "No session found, skipping save."
-        fi
+      - name: Save session (if exists)
+        run: |
+          cd animeZoneGit
+          if [ -d "session" ]; then
+            tar -czvf session.tar.gz session
+          else
+            echo "No session found, skipping save."
+          fi
 
-    - name: Upload session (if exists)
-      uses: actions/upload-artifact@v4
-      if: success()
-      with:
-        name: whatsapp-session
-        path: animeZoneGit/session.tar.gz
-
-    # ✅ Restart workflow dengan Personal Access Token (PAT)
-    - name: Restart workflow
-      continue-on-error: true
-      run: |
-        curl -X POST -H "Accept: application/vnd.github.v3+json" \
-        -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
-        https://api.github.com/repos/${{ github.repository }}/actions/workflows/main.yml/dispatches \
-        -d '{"ref":"main"}'
+      - name: Upload session (if exists)
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: whatsapp-session
+          path: animeZoneGit/session.tar.gz
